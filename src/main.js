@@ -19,30 +19,49 @@ document.addEventListener("DOMContentLoaded",() => {
   document.getElementById("aktualniRok").textContent = new Date().getFullYear();
 
   const form = document.getElementById("kontaktniFormular");
+  if (!form) {
+    console.error("Formulář #kontaktniFormular nebyl nalezen");
+    return;
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const token = grecaptcha.getResponse();
+    let token = "";
+    try {
+      token = grecaptcha.getResponse();
+    } catch (err) {
+      console.error("reCAPTCHA není načtená", err);
+      alert("Nepodařilo se načíst reCAPTCHA. Zkuste obnovit stránku.");
+      return;
+    }
+
     if (!token) {
       alert("Potvrďte prosím CAPTCHA.");
       return;
     }
 
     const data = new FormData(form);
-    const response = await fetch("https://formspree.io/f/xanboklo", {
-      method: "POST",
-      body: data,
-      headers: {
-        Accept: "application/json",
-      },
-    });
 
-    if (response.ok) {
-      alert("Děkujeme za zprávu. Ozveme se vám co nejdříve.");
-      form.reset();
-      grecaptcha.reset();
-    } else {
-      alert("Chyba při odesílání. Zkuste to prosím znovu.");
+    try {
+      const response = await fetch("https://formspree.io/f/xanboklo", {
+        method: "POST",
+        body: data,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        alert("Děkujeme za zprávu. Ozveme se vám co nejdříve.");
+        form.reset();
+        grecaptcha.reset();
+      } else {
+        alert("Chyba při odesílání. Zkuste to prosím znovu.");
+      }
+    } catch (err) {
+      console.error("Chyba při fetchi", err);
+      alert("Chyba připojení k serveru.");
     }
   });
 });
