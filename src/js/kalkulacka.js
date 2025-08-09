@@ -51,7 +51,7 @@ window.spocitejCenu = function() {
         return;
       }
       const celkovyNajem = plocha * cenaZaM2;
-      const sprava = (celkovyNajem + jednotky * 450) * 0.07;
+      const sprava = celkovyNajem * 0.07;
       vysledek.innerHTML = `
         <p><strong>Přibližná cena správy:</strong> ${sprava.toLocaleString()} Kč / měsíc</p>
         <p><strong>Přibližná cena nájmu:</strong> ${celkovyNajem.toLocaleString()} Kč / měsíc</p>
