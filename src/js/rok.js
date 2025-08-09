@@ -1,0 +1,1 @@
+    document.getElementById("aktualniRok").textContent = new Date().getFullYear();
