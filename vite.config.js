@@ -6,7 +6,7 @@ import SortCss from 'postcss-sort-media-queries';
 
 export default defineConfig(({ command }) => {
   return {
-    base: '/SNDB/', // DŮLEŽITÉ pro správné cesty
+    base: '/SNDB/', // 💡 Důležité pro správné načítání z podadresáře
     define: {
       [command === 'serve' ? 'global' : '_global']: {},
     },
@@ -14,15 +14,25 @@ export default defineConfig(({ command }) => {
     build: {
       sourcemap: true,
       rollupOptions: {
-        input: glob.sync('./src/*.html'), // všechny HTML jako entry
+        input: glob.sync('./src/*.html'),
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
               return 'vendor';
             }
           },
-          entryFileNames: '[name].js', // čitelné názvy
-          assetFileNames: 'assets/[name]-[hash][extname]',
+          entryFileNames: chunkInfo => {
+            if (chunkInfo.name === 'commonHelpers') {
+              return 'commonHelpers.js';
+            }
+            return '[name].js';
+          },
+          assetFileNames: assetInfo => {
+            if (assetInfo.name && assetInfo.name.endsWith('.html')) {
+              return '[name].[ext]';
+            }
+            return 'assets/[name]-[hash][extname]';
+          },
         },
       },
       outDir: '../dist',
@@ -30,8 +40,10 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       injectHTML(),
-      FullReload(['./src/**/*.html']),
-      SortCss({ sort: 'mobile-first' }),
+      FullReload(['./src/**/**.html']),
+      SortCss({
+        sort: 'mobile-first',
+      }),
     ],
   };
 });
